@@ -10,7 +10,9 @@ app.get("/",function(req,res){
     return res.send("Hello");
 })
 
-const db=require('./config/mongoose');
+// const db=require('./config/mongoose');
+
+const mongoClient=require('./config/mongoose');
 
 app.listen(port,function(err){
     if(err){
