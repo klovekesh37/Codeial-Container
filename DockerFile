@@ -1,0 +1,11 @@
+FROM node
+
+RUN mkdir app
+
+COPY . app
+
+RUN npm install app/package*.json
+
+EXPOSE 8090
+
+CMD ["node","index.js"]
