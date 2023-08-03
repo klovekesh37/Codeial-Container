@@ -1,11 +1,21 @@
-<div id="signUp">
-    <h1>Sign Up </h1>
-    <form action="/users/create" method="post">
-        <input type="text" name="name" required placeholder="Enter your name">
-        <input type="text" required placeholder="Enter you mail" name="mail">
-        <input type="password" name="passwd" required placeholder="Enter your password">
-        <input type="password" name="confmPasswd" required placeholder="Enter your confirm password">
-        <input type="submit" value="sign-up">
-
-    </form>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+</head>
+<body>
+    <div id="signUp">
+        <h1>Sign Up Page</h1>
+        <form action="/users/create-user" method="post">
+            <input type="text" name="name" required placeholder="Enter your name">
+            <input type="email" required placeholder="Enter you mail" name="email">
+            <input type="password" name="password" required placeholder="Enter your password">
+            <input type="password" name="confmPasswd" required placeholder="Enter your confirm password">
+            <input type="submit" value="sign-up">
+    
+        </form>
+    </div>
+</body>
+</html>

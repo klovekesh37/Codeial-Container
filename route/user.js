@@ -4,11 +4,15 @@ const router=express.Router();
 
 const userContoller=require("../controllers/user_controller");
 
+console.log("User Router Loaded");
+
 router.get('/sign-in',userContoller.signin);
 
-router.get('/signup',userContoller.signup);
+router.get('/sign-up',userContoller.signup);
 
-router.get('/create',userContoller.create);
+router.post('/create-user',userContoller.create);
+
+router.post('/createSession', userContoller.createSession);
 
 module.exports=router;
 

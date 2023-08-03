@@ -3,7 +3,7 @@ const express=require('express');
 const router=express.Router();
 const homeController= require('../controllers/home_controller');
 
-console.log("Router loaded");
+console.log(" Home Router loaded");
 
 router.get('/', homeController.home);
 
