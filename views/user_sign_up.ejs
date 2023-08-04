@@ -7,14 +7,17 @@
 </head>
 <body>
     <div id="signUp">
-        <h1>Sign Up Page</h1>
+        <h1>Enter the details to Sign Up</h1>
         <form action="/users/create-user" method="post">
-            <input type="text" name="name" required placeholder="Enter your name">
-            <input type="email" required placeholder="Enter you mail" name="email">
-            <input type="password" name="password" required placeholder="Enter your password">
-            <input type="password" name="confmPasswd" required placeholder="Enter your confirm password">
-            <input type="submit" value="sign-up">
-    
+            <label class="labl" for="name">Enter Your Name</label>
+            <input class="input" type="text" name="name" required placeholder="Enter your name">
+            <label class="labl" for="email">Enter your Email Id to register</label>
+            <input class="input" type="email" required placeholder="Enter you mail" name="email">
+            <label class="labl" for="password">Enter your password</label>
+            <input class="input" type="password" name="password" required placeholder="Enter your password">
+            <label class="labl" for="confmPasswd">Please confirm your password</label>
+            <input class="input" type="password" name="confmPasswd" required placeholder="Enter your confirm password">
+            <input class="button" type="submit" value="sign-up">
         </form>
     </div>
 </body>
