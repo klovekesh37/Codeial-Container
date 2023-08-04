@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');
-mongoose.connect('mongodb://0.0.0.0/UsersInfo');
+mongoose.connect('mongodb://0.0.0.0:27017/UsersInfo');
 
 const db=mongoose.connection;
 
