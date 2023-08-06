@@ -7,6 +7,8 @@ console.log(" Home Router loaded");
 
 router.get('/', homeController.home);
 
+router.get('/test',homeController.test);
+
 router.use("/users",require("./user"));
 
 
