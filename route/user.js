@@ -10,7 +10,7 @@ router.get('/sign-in',userContoller.signin);
 
 router.get('/sign-up',userContoller.signup);
 
-router.post('/create-user',userContoller.create);
+router.post('/create',userContoller.create);
 
 router.post('/createSession', userContoller.createSession);
 
