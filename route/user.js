@@ -6,13 +6,14 @@ const userContoller=require("../controllers/user_controller");
 
 console.log("User Router Loaded");
 
-router.get('/sign-in',userContoller.signin);
+router.get('/signin',userContoller.signin);
 
-router.get('/sign-up',userContoller.signup);
+router.get('/signup',userContoller.signup);
 
 router.post('/create',userContoller.create);
 
 router.post('/createSession', userContoller.createSession);
 
+router.get('/profile',userContoller.profile);
 module.exports=router;
 

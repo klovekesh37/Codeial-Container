@@ -1,4 +1,4 @@
-const UserModel=require("../models/user");
+const User=require("../models/user");
 
 console.log("User COntroller loaded");
 
@@ -18,28 +18,74 @@ module.exports.signup=function(req,res){
 
 //create the user after sign up button enter
 module.exports.create=function(req,res){
-    
-    
+
+    console.log("create controller loaded")
+    //check password is same as confirmes password
+    if(req.body.password != req.body.confmPasswd){
+        console.log("password doesn't match with confirm password");
+        return res.redirect('back');
+    }
+
     console.log("data coming in request body after signUp--->create user Post");
     
     let data=req.body;
     console.log(`Data==>${data}`);
 
-    let msg=new UserModel(data);
+    let msg=new User(data);
     console.log(`User data adding in the database ${msg}`);
-    
+            
     // save the user model data in database
     msg.save().then((doc)=>{console.log(doc)}).catch((err)=>{console.log(err)});
+            
+    console.log("User Added Successfully");  
+    return res.redirect("/users/signin");
+}
+
+//create the seesion after login button and send you to profile page
+module.exports.createSession=async function(req,res){
     
-    console.log("User Added Successfully");
+    //check user exist or not ..with email id
+    const user = await User.findOne({email:req.body.email});
+    if(!user){
+        console.log("user is not defined");
+        return;
+    }
     
-    return res.redirect("/users/sign-in");
+    if(user){
+        //check entered passowrd match with db passowrd
+        if(user.password!=req.body.password){
+            console.log("password doesn't match");
+            return res.redirect('back');
+        }
+
+        //handle cookie session
+        res.cookie('user_id',user.id);
+        return res.redirect('/users/profile');
+    }
+    else{
+        console.log("handle user not found");
+        return res.redirect('back')
+    }
+
 }
 
 
-//create the seesion after login button anf send you to profile page
-module.exports.createSession=function(req,res){
-    console.log(req.body);
-    return res.render('home',{ layout: false });
+module.exports.profile=async function(req,res){
+    
+    if(req.cookies.user_id){
+        console.log(req.cookies.user_id);
+        const user = await User.findById(req.cookies.user_id);
+        if(user){
+            console.log("user is present");
+            return res.render('profile',{title:"User Profile",user: user});
+        }
+        else{
+            console.log("user not found after cookie checkup");
+            return res.redirect("/users/signin");
+        }
+    }
+    else{
+        console.log("users cookies not present");
+        return res.redirect("/users/signin");
+    }
 }
-

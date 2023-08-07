@@ -1,16 +1,21 @@
 const express=require('express');
 const app=express();
 const port=8090
-
+//For reading and writing into cookies, we will be using a library called cookie-parser.
+const cookieParser=require('cookie-parser');
+//to set up the cookie parser using the app
+app.use(cookieParser());
 app.use(express.urlencoded());
 
-//EJS engine used as View engine
+//for using partials we use layout
 const expressLayout=require("express-ejs-layouts");
+////EJS engine used as View engine
 app.set('view engine','ejs');
 app.set('views','./views');
+// set express layout for layout partial in ejs
 app.use(expressLayout);
 
-// to usee CSS files in ejs or html
+// tell in which foler to look for static(CSS) files in ejs or html
 app.use(express.static('./assets'));
 
 //app.set('layout extractStyles',true);
