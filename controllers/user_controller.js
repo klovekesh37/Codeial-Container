@@ -77,7 +77,7 @@ module.exports.profile=async function(req,res){
         const user = await User.findById(req.cookies.user_id);
         if(user){
             console.log("user is present");
-            return res.render('profile',{title:"User Profile",user: user});
+            return res.render('profile',{title:"User Profile",user: user,layout: false});
         }
         else{
             console.log("user not found after cookie checkup");

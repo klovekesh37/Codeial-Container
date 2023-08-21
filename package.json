@@ -16,6 +16,11 @@
     "express-ejs-layouts": "^2.5.1",
     "mongodb": "^5.7.0",
     "mongoose": "^7.4.1",
+    "passport-local": "^1.0.0",
     "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "express-session": "^1.17.3",
+    "passport": "^0.6.0"
   }
 }

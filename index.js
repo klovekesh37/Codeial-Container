@@ -1,11 +1,28 @@
 const express=require('express');
 const app=express();
 const port=8090
+
+/**
+ * Passport is an authenticated middleware for Node.js and Passport.js uses a session cookie { session cookie stores all the session information plus it is encrypted }.
+ * Passport uses two strategy----local and oauth(google,facebook)
+ * installed the passport library and local strategy package and required them
+ * Session Encrypted cookies - Automatically the user’s id will be encrypted and stored into session cookies, which can be done using a library { express-session }.
+ */
+//used for session cookie
+const session=require("express-session");
+const passport=require("passport");
+const passportLocal=require("./config/passport-local-strategy");
+
+app.use(express.urlencoded());
+
 //For reading and writing into cookies, we will be using a library called cookie-parser.
 const cookieParser=require('cookie-parser');
 //to set up the cookie parser using the app
 app.use(cookieParser());
-app.use(express.urlencoded());
+
+
+
+/* SETTING UP THE EJS as engine */
 
 //for using partials we use layout
 const expressLayout=require("express-ejs-layouts");
@@ -15,17 +32,37 @@ app.set('views','./views');
 // set express layout for layout partial in ejs
 app.use(expressLayout);
 
+/* To set the static files location where to look into */
 // tell in which foler to look for static(CSS) files in ejs or html
 app.use(express.static('./assets'));
 
 //app.set('layout extractStyles',true);
 //app.set('layout extractScripts', true);
 
-// Redirect request to the route/index 
+/**
+ * add middleware that takes the session cookies and encrypts them,
+ */
+app.use(session({
+    name:'codeial',
+    secret:'blahblah',
+    saveUninitialized:false,
+    resave: false,
+    cookie:{
+        maxAge:(100*60*10)
+    }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+/* Redirecting Request to Route/index.js */
 app.use('/',require("./route/index"));
 
 
 const db=require('./config/mongoose');
+
+
+/* Defined where server will listen and start the server*/
 
 app.listen(port,function(err){
     if(err){
