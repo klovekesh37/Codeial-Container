@@ -2,7 +2,7 @@ const app=require("./index.js");
 //SuperTest is a Node.js library that helps in testing APIs. It extends another library called superagent, 
 //a JavaScript HTTP client for Node.js and the browser. 
 const supertest=require("supertest");
-const {describe, it} = require("jest-circus");
+const {describe, it} = require("jest");
 const request=supertest(app);
 
 
