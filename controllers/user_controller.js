@@ -4,14 +4,18 @@ console.log("User COntroller loaded");
 
 // Sign In which send page after signin button click to create-seesion using post which then send you to Profile page
 module.exports.signin=function(req,res){
-   
+    if(req.isAuthenticated()){
+        return res.redirect('/users/profile');
+    }
     return res.render('user_sign_in',{ layout: false })
 }
 
 //Sign Up page, which create-user via post and then send to you sign in page
 module.exports.signup=function(req,res){
     console.log("Sign-up controller loaded");
-
+    if(req.isAuthenticated()){
+        return res.redirect('/users/profile');
+    }
     return res.render('user_sign_up',{ layout: false });
     
 }
@@ -44,29 +48,29 @@ module.exports.create=function(req,res){
 //create the seesion after login button and send you to profile page
 module.exports.createSession=async function(req,res){
     
-    //check user exist or not ..with email id
-    const user = await User.findOne({email:req.body.email});
-    if(!user){
-        console.log("user is not defined");
-        return;
-    }
+    // //check user exist or not ..with email id
+    // const user = await User.findOne({email:req.body.email});
+    // if(!user){
+    //     console.log("user is not defined");
+    //     return;
+    // }
     
-    if(user){
-        //check entered passowrd match with db passowrd
-        if(user.password!=req.body.password){
-            console.log("password doesn't match");
-            return res.redirect('back');
-        }
+    // if(user){
+    //     //check entered passowrd match with db passowrd
+    //     if(user.password!=req.body.password){
+    //         console.log("password doesn't match");
+    //         return res.redirect('back');
+    //     }
 
-        //handle cookie session
-        res.cookie('user_id',user.id);
-        return res.redirect('/users/profile');
-    }
-    else{
-        console.log("handle user not found");
-        return res.redirect('back')
-    }
-
+    //     //handle cookie session
+    //     res.cookie('user_id',user.id);
+    //     return res.redirect('/users/profile');
+    // }
+    // else{
+    //     console.log("handle user not found");
+    //     return res.redirect('back')
+    // }
+    return res.redirect('/users/profile');
 }
 
 
