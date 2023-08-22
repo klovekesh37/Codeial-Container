@@ -39,9 +39,13 @@ app.use(express.static('./assets'));
 //app.set('layout extractStyles',true);
 //app.set('layout extractScripts', true);
 
+const db=require('./config/mongoose');
 /**
  * add middleware that takes the session cookies and encrypts them,
+ * The session cookies get reset every time the server restarts
+ * Mongo Store for persistent storage and a library called connect-mongo.
  */
+const MongoStore= require('connect-mongo');
 app.use(session({
     name:'codeial',
     secret:'blahblah',
@@ -49,17 +53,24 @@ app.use(session({
     resave: false,
     cookie:{
         maxAge:(100*60*10)
-    }
+    },
+    store:MongoStore.create(
+        {
+            mongoUrl:"mongodb://0.0.0.0:27017/UsersInfo",
+            mogooseConnection:db,
+            autoRemove:'disabled'
+        }, function(err){
+            console.log(err|| "conect-mongo db connection Ok");
+        }
+    )
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(passport.setAuthenticatedUser);
 /* Redirecting Request to Route/index.js */
 app.use('/',require("./route/index"));
 
-
-const db=require('./config/mongoose');
 
 
 /* Defined where server will listen and start the server*/

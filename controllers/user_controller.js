@@ -76,20 +76,33 @@ module.exports.createSession=async function(req,res){
 
 module.exports.profile=async function(req,res){
     
-    if(req.cookies.user_id){
-        console.log(req.cookies.user_id);
-        const user = await User.findById(req.cookies.user_id);
-        if(user){
-            console.log("user is present");
-            return res.render('profile',{title:"User Profile",user: user,layout: false});
+    // if(req.cookies.user_id){
+    //     console.log(req.cookies.user_id);
+    //     const user = await User.findById(req.cookies.user_id);
+    //     if(user){
+    //         console.log("user is present");
+    //         return res.render('profile',{title:"User Profile",user: user,layout: false});
+    //     }
+    //     else{
+    //         console.log("user not found after cookie checkup");
+    //         return res.redirect("/users/signin");
+    //     }
+    // }
+    // else{
+    //     console.log("users cookies not present");
+    //     return res.redirect("/users/signin");
+    // }
+
+    return res.render('profile',{title:"User Profile",layout: false});
+}
+
+
+module.exports.destroySession=function(req,res){
+    req.logout(function(err){
+        if(err){
+            console.log(err);
+            return next(err);
         }
-        else{
-            console.log("user not found after cookie checkup");
-            return res.redirect("/users/signin");
-        }
-    }
-    else{
-        console.log("users cookies not present");
-        return res.redirect("/users/signin");
-    }
+        return res.redirect('/');
+    })
 }
