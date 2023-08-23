@@ -5,14 +5,29 @@
     <title> Document</title>
 </head>
 <body>
-    <h1>Detail of the user</h1>
-    <ul id="deta">
-        <li>
-            first 1
-        </li>
-        <li>
-            first 2
-        </li>
-    </ul>
+    <div id="centre">
+        <h1>
+            Welcome To Codeial Home Page
+        </h1>
+    </div>
+    <!--we have set the user in locals durinf passport.setAuthenticatedUser-->
+    <div id="main">
+        
+        <% if(locals.user){%>
+            <h1><%=user.name%></h1>
+            <a href="/users/signout">Sign Out</a>
+        <%}else{%>
+            <ul>
+                <li>
+                    <a href="/users/signin">Sign In</a>
+                </li>
+                <li>
+                    <a href="/users/signup">Sign Up</a>
+                </li>
+            </ul>
+        <%}%>
+    </div>
+    
+
 </body>
 </html>

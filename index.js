@@ -52,7 +52,7 @@ app.use(session({
     saveUninitialized:false,
     resave: false,
     cookie:{
-        maxAge:(100*60*10)
+        maxAge:(1000*60*10)
     },
     store:MongoStore.create(
         {

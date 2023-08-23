@@ -1,8 +1,13 @@
 body{
-    background-color: aqua;
+    background-color: #D8C3A5;
 }
-h1{
+#centre{
     text-align: center;
-    text-decoration: brown;
-    background-color: chartreuse;
+    
+}
+
+#main{
+    display:flex;
+    flex-direction: column;
+    flex-flow: column-reverse;
 }
