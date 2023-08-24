@@ -70,6 +70,9 @@ module.exports.createSession=async function(req,res){
     //     console.log("handle user not found");
     //     return res.redirect('back')
     // }
+
+
+    // Passport will create the seeion for user
     return res.redirect('/users/profile');
 }
 

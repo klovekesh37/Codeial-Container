@@ -12,7 +12,7 @@
     </div>
     <!--we have set the user in locals durinf passport.setAuthenticatedUser-->
     <div id="main">
-        
+
         <% if(locals.user){%>
             <h1><%=user.name%></h1>
             <a href="/users/signout">Sign Out</a>
@@ -27,6 +27,32 @@
             </ul>
         <%}%>
     </div>
+    <% if(locals.user){%>
+    <div class="post-list">
+        <h1>Posts </h1>
+        <div class="input-form">
+            <form action="/post/create" method="post">
+                <!-- <input type="text" required name="content"> -->
+                <textarea name="content" id="content" cols="30" rows="10" placeholder="Typr here...."></textarea>
+                <input type="submit" value="Post">
+            </form>
+        </div>
+    </div>
+    <%}%>
+    <div id="Post-list">
+        <% for(post of posts){%>
+            <ul>
+                <li>
+                    <p>
+                        <%=post.content%>
+                        <br>
+                        User Name: <%=post.user.name %>
+                    </p>
+                </li>
+            </ul>
+        <%}%>
+    </div>
+
     
 
 </body>
