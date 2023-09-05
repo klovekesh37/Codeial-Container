@@ -5,7 +5,7 @@ console.log("User COntroller loaded");
 // Sign In which send page after signin button click to create-seesion using post which then send you to Profile page
 module.exports.signin=function(req,res){
     if(req.isAuthenticated()){
-        return res.redirect('/users/profile');
+        return res.redirect('/');
     }
     return res.render('user_sign_in',{ layout: false })
 }
@@ -14,7 +14,7 @@ module.exports.signin=function(req,res){
 module.exports.signup=function(req,res){
     console.log("Sign-up controller loaded");
     if(req.isAuthenticated()){
-        return res.redirect('/users/profile');
+        return res.redirect('/');
     }
     return res.render('user_sign_up',{ layout: false });
     
@@ -73,7 +73,7 @@ module.exports.createSession=async function(req,res){
 
 
     // Passport will create the seeion for user
-    return res.redirect('/users/profile');
+    return res.redirect('/');
 }
 
 
@@ -96,7 +96,7 @@ module.exports.profile=async function(req,res){
     //     return res.redirect("/users/signin");
     // }
 
-    return res.render('profile',{title:"User Profile",layout: false});
+    return res.render('home',{title:"User Profile",layout: false});
 }
 
 

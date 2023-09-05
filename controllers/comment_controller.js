@@ -34,3 +34,24 @@ module.exports.create=function(req,res){
     }).catch((err)=>{console.log(err)});
 
 }
+
+
+module.exports.destroy=function(req,res){
+    Comment.findById(req.params.id).then((comment)=>{
+        
+        if(comment.user== req.user.id){
+            let postId=comment.post;
+            
+            comment.deleteOne(comment._id).then().catch((err)=>{console.log(err);});
+           
+            Post.findByIdAndUpdate(postId, {$pull:{comments:req.params.id}}).then((post)=>{
+                console.log(post);
+                return res.redirect('back');
+            }).catch((err)=>{console.log(err);})
+        }else{
+            return res.redirect('back');
+        }
+
+    }).catch((err)=>{console.log(err);});
+
+}

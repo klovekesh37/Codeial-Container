@@ -27,6 +27,8 @@
             </ul>
         <%}%>
     </div>
+
+    <!-- if user is signed in then show below form...for posting the post -->
     <% if(locals.user){%>
     <div class="post-list">
         <h1>Posts </h1>
@@ -39,17 +41,28 @@
         </div>
     </div>
     <%}%>
+
+
+    <!-- Display the post and with its owner -->
     <div id="Post-list">
         <% for(post of posts){%>
             <ul>
                 <li>
                     <p>
-                        <%=post.content%>
-                        <br>
-                        User Name: <%=post.user.name %>
+                        <% if(locals.user && (locals.user.id == post.user.id)){%>
+                            <small>
+                                <a href="/post/destroy/<%=post._id%>">X</a>
+                            </small>
+                        <%}%>
+                        <p>
+                            <%=post.content%>
+                            <br>
+                            User Name: <%=post.user.name %>
+                        </p>
                     </p>
                 </li>
 
+                <!-- display the comments on each post with its owner  -->
                 <div class="posts-comment-list">
                     <ul id="post-comments-<%=post._id%>">
                         <% for(comment of post.comments){%>
@@ -58,9 +71,19 @@
                                 <br>
                                 <%=comment.user.name%>
                             </p>
+                            <div class="delete-btn">
+                                <%if(locals.user && (locals.user.id == comment.user.id)){%>
+                                <p>
+                                    <a href="/comment/destroy/<%=comment._id%>">X</a>
+                                </p>
+                                <%}%>
+                            </div>
                         <%}%>
+                        
                     </ul>
                 </div>
+                
+
                 <div class="comment-feed">
                     <%if(locals.user){%>
                         <form action="/comment/create" method="post">
