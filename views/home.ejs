@@ -6,36 +6,18 @@
 </head>
 <body>
     <div id="centre">
-        <h1>
-            Welcome To Codeial Home Page
-        </h1>
-    </div>
-    <!--we have set the user in locals durinf passport.setAuthenticatedUser-->
-    <div id="main">
+        
+        <%- include('_header') -%>
 
-        <% if(locals.user){%>
-            <h1><%=user.name%></h1>
-            <a href="/users/signout">Sign Out</a>
-        <%}else{%>
-            <ul>
-                <li>
-                    <a href="/users/signin">Sign In</a>
-                </li>
-                <li>
-                    <a href="/users/signup">Sign Up</a>
-                </li>
-            </ul>
-        <%}%>
-    </div>
 
     <!-- if user is signed in then show below form...for posting the post -->
     <% if(locals.user){%>
-    <div class="post-list">
+    <div class="post-form">
         <h1>Posts </h1>
         <div class="input-form">
             <form action="/post/create" method="post">
                 <!-- <input type="text" required name="content"> -->
-                <textarea name="content" id="content" cols="30" rows="10" placeholder="Typr here...."></textarea>
+                <textarea name="content" id="content" cols="30" rows="10" placeholder="Typr here...." required></textarea>
                 <input type="submit" value="Post">
             </form>
         </div>
@@ -43,60 +25,87 @@
     <%}%>
 
 
-    <!-- Display the post and with its owner -->
-    <div id="Post-list">
+<!-- Example -->
+
+
+<div class="post-main">
+   
         <% for(post of posts){%>
-            <ul>
-                <li>
+        <div class="post-container">
+
+            <div class="post-update">
+                <% if(locals.user && (locals.user.id == post.user.id)){%>
+                    <small>
+                        <a href="/post/update/<%=post._id%>">update</a>
+                    </small>
+                <%}%>
+            </div>
+            <div class="post-name">
+                <p>
+                    <%=post.user.name %>
+                </p>
+            </div>
+        
+            <!-- <div class="post-date">
+                <p>
+                    <%= post.createdAt %>
+                </p>
+            </div> -->
+        
+            <div class="post-content">
+                <p class="content">
+                    Post Section:<%= post.content %>
+                </p>
+                <% if(locals.user && (locals.user.id == post.user.id)){%>
+                    <small>
+                        <a href="/post/destroy/<%=post._id%>">X</a>
+                    </small>
+                <%}%>
+            </div>
+        
+            <div class="comment-section">
+                <% for(comment of post.comments){%>
+                <div class="comment-name">
                     <p>
-                        <% if(locals.user && (locals.user.id == post.user.id)){%>
-                            <small>
-                                <a href="/post/destroy/<%=post._id%>">X</a>
-                            </small>
-                        <%}%>
-                        <p>
-                            <%=post.content%>
-                            <br>
-                            User Name: <%=post.user.name %>
-                        </p>
+                        <%=comment.user.name%>
                     </p>
-                </li>
-
-                <!-- display the comments on each post with its owner  -->
-                <div class="posts-comment-list">
-                    <ul id="post-comments-<%=post._id%>">
-                        <% for(comment of post.comments){%>
-                            <p>
-                                <%=comment.content%>
-                                <br>
-                                <%=comment.user.name%>
-                            </p>
-                            <div class="delete-btn">
-                                <%if(locals.user && (locals.user.id == comment.user.id)){%>
-                                <p>
-                                    <a href="/comment/destroy/<%=comment._id%>">X</a>
-                                </p>
-                                <%}%>
-                            </div>
+                </div>
+                <!-- <div class="comment-date">
+                    <p>
+                        <%=comment.createdAt%>
+                    </p> 
+                </div>-->
+        
+                <div class="comment-content" >
+                    <p class="content">
+                       Comment Section: <%=comment.content%>
+                    </p>
+                    <small>
+                    <%if(locals.user && (locals.user.id == comment.user.id)){%>
+                        <p>
+                            <a href="/comment/destroy/<%=comment._id%>">X</a>
+                        </p>
                         <%}%>
-                        
-                    </ul>
+                    </small>
                 </div>
-                
+        
+                <%}%>
+            </div>
+        
+            <div class="comment-form">
+                <%if(locals.user){%>
+                    <form action="/comment/create" method="post">
+                        <input type="text" name="content" required placeholder="type Comment">
+                        <input type="hidden" name="post" value="<%=post._id%>">
+                        <input type="submit" value="Add comment">
+                    </form>
+                <%}%>
+            </div>
+        </div>
+            <%}%>
+</div>
 
-                <div class="comment-feed">
-                    <%if(locals.user){%>
-                        <form action="/comment/create" method="post">
-                            <input type="text" name="content" required placeholder="type Comment">
-                            <input type="hidden" name="post" value="<%=post._id%>">
-                            <input type="submit" value="Add comment">
-                        </form>
-                    <%}%>
-                </div>
-            </ul>
-        <%}%>
-    </div>
-    
+    <%- include('_footer') -%>
 
     
 

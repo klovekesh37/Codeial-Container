@@ -26,10 +26,11 @@ body {
     font-weight: bold;
 }
 .input-group input {
-    width: 100%;
+    width: 85%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 3px;
+    
 }
 .input-group input:focus {
     outline: none;
@@ -37,7 +38,7 @@ body {
 }
 .input-group button {
     display: block;
-    width: 100%;
+    width: 92%;
     padding: 10px;
     background-color: #3498db;
     color: #fff;

@@ -1,0 +1,17 @@
+<div id="main">
+    <div class="heading">
+        Codieal
+    </div>
+
+    <div class="detail">
+        <% if(locals.user){%>
+            <img src="/images/user.png" alt="User">
+            <p><%=user.name%></p>
+            <a href="/users/signout">Sign Out</a>
+        <%} else{%>
+            <a href="/users/signin">Sign In</a>
+            <a href="/users/signup"> Sign Up</a>
+        <%}%>
+    </div>
+   
+</div>
