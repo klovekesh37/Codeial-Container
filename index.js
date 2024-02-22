@@ -56,7 +56,7 @@ app.use(session({
     },
     store:MongoStore.create(
         {
-            mongoUrl:"mongodb://0.0.0.0:27017/UsersInfo",
+            mongoUrl:'mongodb://admin:password@mongodb:27017/UserInfo?directConnection=true&authSource=admin',
             mogooseConnection:db,
             autoRemove:'disabled'
         }, function(err){
