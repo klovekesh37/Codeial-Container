@@ -42,4 +42,12 @@ sudo service docker start
 sudo systemctl start docker
 sudo usermod -a -G docker ec2-user
 ```
-3. Create 
+3. Build the image and run the node-app contianer
+   ```
+   docker run -d -p 27017:27017 --network app --name mongodb \
+        -e MONGO_INITDB_ROOT_USERNAME=admin \
+        -e MONGO_INITDB_ROOT_PASSWORD=password \
+        mongo
+   docker build -t my-app .
+   docker run -d -p 8090:8090 --network app my-app
+   ```
