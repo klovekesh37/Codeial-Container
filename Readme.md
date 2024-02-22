@@ -52,3 +52,21 @@ sudo usermod -a -G docker ec2-user
    docker build -t my-app .
    docker run -d -p 8090:8090 --network app my-app
    ```
+4. Use nginx as reverse proxy
+```
+sudo yum install -y nginx
+sudo vim /etc/nginx/nginx.conf
+```
+Past below in the file
+```
+server {
+        listen       80;
+        listen       [::]:80;
+        server_name  <publuc Ip or domain name>;
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+        location / {
+        proxy_pass http://localhost:8090;
+        }
+    }
+```
