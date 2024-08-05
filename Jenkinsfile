@@ -28,8 +28,13 @@ pipeline {
         stage("OWASP") {
             steps {
 
-                dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'OWASP'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+               dependencyCheck additionalArguments: ''' 
+                    -o './'
+                    -s './'
+                    -f 'ALL' 
+                    --prettyPrint''', odcInstallation: 'OWASP'
+        
+                dependencyCheckPublisher pattern: 'dependency-check-report.html'
             }
         }
         stage("Build & Test") {
@@ -40,7 +45,7 @@ pipeline {
         }
         stage("Trivy") {
             steps {
-                sh "trivy image node-app-v1:latest"
+                sh 'trivy image --format template --template "@/usr/local/share/trivy/templates/html.tpl"  node-app-v1:latest -o report.html'
             }
         }
         stage("Push to Private Docker Hub Repo") {
