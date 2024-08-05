@@ -27,6 +27,7 @@ pipeline {
         }
         stage("OWASP") {
             steps {
+
                 dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'OWASP'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
@@ -45,7 +46,7 @@ pipeline {
         stage("Push to Private Docker Hub Repo") {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'Docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         def dockerUsername = env.DOCKER_USERNAME
                         def dockerPassword = env.DOCKER_PASSWORD
                         sh "echo ${dockerPassword} | docker login -u ${dockerUsername} --password-stdin"
