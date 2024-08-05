@@ -1,9 +1,9 @@
 pipeline {
     agent any
-    // environment {
-    //     SONAR_HOME = tool "Sonar"
+    environment {
+        SONAR_HOME = tool "SonarQubeScanner"
         
-    // }
+    }
     stages {
         stage("Code") {
             steps {
@@ -11,20 +11,20 @@ pipeline {
                 echo "Code Cloned Successfully"
             }
         }
-        // stage("SonarQube Analysis") {
-        //     steps {
-        //         withSonarQubeEnv("Sonar") {
-        //             sh "$SONAR_HOME/bin/sonar-scanner -Dsonar.projectName=nodetodo -Dsonar.projectKey=nodetodo -X"
-        //         }
-        //     }
-        // }
-        // stage("SonarQube Quality Gates") {
-        //     steps {
-        //         timeout(time: 1, unit: "MINUTES") {
-        //             waitForQualityGate abortPipeline: false
-        //         }
-        //     }
-        // }
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv("SonarQubeInstallations") {
+                    sh "$SONAR_HOME/bin/sonar-scanner -Dsonar.projectName=nodetodo -Dsonar.projectKey=nodetodo -X"
+                }
+            }
+        }
+        stage("SonarQube Quality Gates") {
+            steps {
+                timeout(time: 1, unit: "MINUTES") {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
         stage("OWASP") {
             steps {
                 dependencyCheck additionalArguments: '--scan ./', odcInstallation: 'OWASP'
