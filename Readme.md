@@ -1,6 +1,5 @@
 # InnoOps AWS Node
 
-
 InnoOps AWS Node is a Nodejs application with complete CI/CD pipelines and deploye to AWS EC2, ECS and EKS.
 
 ## Table of Contents
@@ -33,16 +32,50 @@ InnoOps AWS Node is a Nodejs application with complete CI/CD pipelines and deplo
 - You should have an AWS account (can use the free tier account).
 
 ### Installation
-1. Create an AWS EC2 instance with name Nodejs-app and SSH to EC2 instance.
-2. Install the docker using below command.
+1. Create an AWS EC2 instance for t2.large instance with name Nodejs-app and SSH to EC2 instance.
+2. Install all the reuired packages using below command.
+Docker
 ```
 sudo yum update -y
-sudo amazon-linux-extras install docker
+sudo install docker
 sudo service docker start
 sudo systemctl start docker
 sudo usermod -a -G docker ec2-user
 ```
-3. Build the image and run the node-app contianer
+Jenkins
+```
+sudo dnf install java-17-amazon-corretto -y
+sudo java -version
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+sudo yum upgrade
+# Add required dependencies for the jenkins package
+sudo yum install jenkins -y
+sudo systemctl daemon-reload
+sudo usermod -aG docker jenkins
+```
+Trivy
+```
+sudo tee /etc/yum.repos.d/trivy.repo << EOF
+[trivy]
+name=Trivy repository
+baseurl=https://aquasecurity.github.io/trivy-repo/rpm/releases/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://aquasecurity.github.io/trivy-repo/rpm/public.key
+EOF
+
+sudo yum -y update
+sudo yum -y install trivy
+```
+
+3. Run the sonarqube container
+```
+docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
+```
+
+5. Build the image and run the node-app contianer
    ```
    docker network create app
    docker run -d -p 27017:27017 --network app --name mongodb \
@@ -52,7 +85,7 @@ sudo usermod -a -G docker ec2-user
    docker build -t my-app .
    docker run -d -p 8090:8090 --network app my-app
    ```
-4. Use nginx as reverse proxy
+6. Use nginx as reverse proxy
 ```
 sudo yum install -y nginx
 sudo vim /etc/nginx/nginx.conf
