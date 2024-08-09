@@ -38,9 +38,9 @@ Docker
 ```
 sudo yum update -y
 sudo install docker
-sudo service docker start
+sudo systemctl enable docker
 sudo systemctl start docker
-sudo usermod -a -G docker ec2-user
+sudo usermod -aG docker ec2-user
 ```
 Jenkins
 ```
@@ -50,10 +50,11 @@ sudo wget -O /etc/yum.repos.d/jenkins.repo \
     https://pkg.jenkins.io/redhat-stable/jenkins.repo
 sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
 sudo yum upgrade
-# Add required dependencies for the jenkins package
 sudo yum install jenkins -y
 sudo systemctl daemon-reload
 sudo usermod -aG docker jenkins
+sudo systemctl enable jenkins.service
+sudo systemctl start jenkins.service
 ```
 Trivy
 ```
@@ -75,7 +76,8 @@ sudo yum -y install trivy
 docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
 ```
 
-5. Build the image and run the node-app contianer
+5. YOu can verify the that app is running with images.
+   Build the image and run the container
    ```
    docker network create app
    docker run -d -p 27017:27017 --network app --name mongodb \
@@ -85,7 +87,7 @@ docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
    docker build -t my-app .
    docker run -d -p 8090:8090 --network app my-app
    ```
-6. Use nginx as reverse proxy
+7. Use nginx as reverse proxy
 ```
 sudo yum install -y nginx
 sudo vim /etc/nginx/nginx.conf
@@ -103,3 +105,6 @@ server {
         }
     }
 ```
+### Setup the Jenkins 
+- 
+
