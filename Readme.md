@@ -87,24 +87,54 @@ docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube
    docker build -t my-app .
    docker run -d -p 8090:8090 --network app my-app
    ```
-7. Use nginx as reverse proxy
+7. Use nginx as reverse proxy with SSL 
+
+7.1 Install nginx and openssl
 ```
-sudo yum install -y nginx
-sudo vim /etc/nginx/nginx.conf
+sudo yum install -y nginx openssl
 ```
+7.2 Generate the self signed SSL certificate:
+```
+########## You are prompted for the passphrase used as the basis for encryption. save the passpharse in file like /etc/keys/global.pass ######
+openssl genrsa -des3 -out ~/private-key.pem 2048
+######## generate the self certificate #########
+openssl req -new -x509 -key ~/private-key.pem -out ~/self-cert.pem -days 10950
+```
+7.3 move the key and self signed certificate to /etc/nginx/ssl
+7.4 Edit the nginx.conf and paste the below 
 Past below in the file
 ```
+http{
+...
+    ssl_password_file /etc/keys/global.pass;
+...
 server {
-        listen       80;
-        listen       [::]:80;
-        server_name  <publuc Ip or domain name>;
+        listen       443 ssl;
+        listen       [::]:443 ssl;
+        server_name  localhost;
+        root         /usr/share/nginx/html;
+        ssl_certificate           /etc/nginx/ssl/self-cert.pem;
+        ssl_certificate_key       /etc/nginx/ssl/private-key.pem;
+        ssl_session_cache         shared:SSL:1m;
+        ssl_prefer_server_ciphers on;
+
         # Load configuration files for the default server block.
         include /etc/nginx/default.d/*.conf;
         location / {
-        proxy_pass http://localhost:8090;
+                proxy_pass http://localhost:8090;
         }
     }
 ```
+7.5 test nginx confgiration file
+```
+nginx -t
+```
+This test should be passed
+7.6 start the nginx server
+```
+sudo systemctl restart nginx
+```
+
 ### Setup the Jenkins 
 - 
 
