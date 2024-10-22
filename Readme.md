@@ -95,7 +95,7 @@ sudo yum install -y nginx openssl
 ```
 7.2 Generate the self signed SSL certificate:
 ```
-########## You are prompted for the passphrase used as the basis for encryption. save the passpharse in file like /etc/keys/global.pass ######
+########## Generate the pem private key. To encrypt the private key, include the -des3 parameter.(You are prompted for the passphrase used as the basis for encryption. save the passpharse in file like /etc/keys/global.pass) ######
 openssl genrsa -des3 -out ~/private-key.pem 2048
 ######## generate the self certificate #########
 openssl req -new -x509 -key ~/private-key.pem -out ~/self-cert.pem -days 10950
@@ -130,6 +130,7 @@ server {
 nginx -t
 ```
 This test should be passed
+
 7.6 start the nginx server
 ```
 sudo systemctl restart nginx
