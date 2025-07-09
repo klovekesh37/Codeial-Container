@@ -1,7 +1,6 @@
 const express=require('express');
 const app=express();
-const port=8090
-
+const port = process.env.PORT || 8090;
 /**
  * Passport is an authenticated middleware for Node.js and Passport.js uses a session cookie { session cookie stores all the session information plus it is encrypted }.
  * Passport uses two strategy----local and oauth(google,facebook)
