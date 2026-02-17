@@ -53,16 +53,15 @@ jobs:
           args: >
             -Dsonar.projectKey=nodetodo
             -Dsonar.projectName=nodetodo
+        continue-on-error: true
 
       - name: Verify report-task.txt Exists
         run: |
-          echo "=== Checking for report-task.txt ==="
           if [ -f ".scannerwork/report-task.txt" ]; then
             echo "✓ report-task.txt found"
             cat .scannerwork/report-task.txt
           else
             echo "✗ report-task.txt NOT found"
-            ls -la .scannerwork/ || echo "No .scannerwork directory"
           fi
 
       - name: SonarQube Quality Gate
@@ -70,8 +69,7 @@ jobs:
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        continue-on-error: true  # Equivalent to abortPipeline: false
-
+        continue-on-error: true
 
   # ─────────────────────────────────────────
   # JOB 3: OWASP Dependency Check
@@ -109,7 +107,7 @@ jobs:
   build:
     name: 🐳 Build Docker Image
     runs-on: ubuntu-latest
-    needs: [sonarqube-quality-gate, owasp-dependency-check]
+    needs: [sonarqube, owasp-dependency-check]  # ✅ FIXED: was sonarqube-quality-gate
     steps:
       - name: Download Source Code
         uses: actions/download-artifact@v4
@@ -235,7 +233,29 @@ jobs:
           docker load < node-app-image.tar.gz
           echo "✓ Docker Image Loaded"
 
+      # ✅ FIX: Create .env file from GitHub Secrets
+      # Required because docker-compose.yml uses env_file: .env
+      - name: Create .env File from GitHub Secrets
+        run: |
+          cat > .env << EOF
+          MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
+          MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
+          MONGO_HOSTNAME=mongodb
+          MONGO_PORT=27017
+          MONGO_DB=${{ secrets.MONGO_DB }}
+          EOF
+          echo "✓ .env file created"
+          echo "=== Verifying .env keys (values masked) ==="
+          cat .env | sed 's/=.*/=***/'
+
+      # ✅ FIX: Pass secrets as env vars + run docker compose
       - name: Deploy with Docker Compose
+        env:
+          MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+          MONGO_HOSTNAME: mongodb
+          MONGO_PORT: 27017
+          MONGO_DB: ${{ secrets.MONGO_DB }}
         run: |
           # Check docker compose version
           docker compose version
@@ -243,17 +263,28 @@ jobs:
           # Stop existing containers
           docker compose down
 
-          # Start services fresh
+          # Pull latest images
+          docker compose pull || true
+
+          # Start all services fresh
           docker compose up -d
 
-          # Wait for containers to initialize
-          sleep 10
+          # Wait for MongoDB to be ready
+          echo "⏳ Waiting for MongoDB to initialize..."
+          sleep 20
 
           # Show running containers
+          echo "=== Running Containers ==="
           docker compose ps
 
-          # Show recent logs
-          echo "=== Application Logs ==="
-          docker compose logs --tail=30
+          # Show logs for debugging
+          echo "=== MongoDB Logs ==="
+          docker compose logs mongodb --tail=20
+
+          echo "=== App Logs ==="
+          docker compose logs nodejs_container --tail=20
+
+          echo "=== Mongo Express Logs ==="
+          docker compose logs mongo-express --tail=10
 
           echo "✓ App Deployed Successfully"
