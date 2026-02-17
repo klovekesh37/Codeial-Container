@@ -31,10 +31,10 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────
-  # JOB 2: SonarQube Analysis
+  # JOB 2: SonarQube Analysis + Quality Gate
   # ─────────────────────────────────────────
-  sonarqube-analysis:
-    name: 🔍 SonarQube Analysis
+  sonarqube:
+    name: 🔍 SonarQube Analysis & Quality Gate
     runs-on: ubuntu-latest
     needs: checkout
     steps:
@@ -53,25 +53,28 @@ jobs:
           args: >
             -Dsonar.projectKey=nodetodo
             -Dsonar.projectName=nodetodo
-        continue-on-error: true
 
-  # ─────────────────────────────────────────
-  # JOB 3: SonarQube Quality Gate
-  # ─────────────────────────────────────────
-  sonarqube-quality-gate:
-    name: 🚦 SonarQube Quality Gate
-    runs-on: ubuntu-latest
-    needs: sonarqube-analysis
-    steps:
-      - name: SonarQube Quality Gate Check
+      - name: Verify report-task.txt Exists
+        run: |
+          echo "=== Checking for report-task.txt ==="
+          if [ -f ".scannerwork/report-task.txt" ]; then
+            echo "✓ report-task.txt found"
+            cat .scannerwork/report-task.txt
+          else
+            echo "✗ report-task.txt NOT found"
+            ls -la .scannerwork/ || echo "No .scannerwork directory"
+          fi
+
+      - name: SonarQube Quality Gate
         uses: sonarsource/sonarqube-quality-gate-action@master
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         continue-on-error: true  # Equivalent to abortPipeline: false
 
+
   # ─────────────────────────────────────────
-  # JOB 4: OWASP Dependency Check
+  # JOB 3: OWASP Dependency Check
   # ─────────────────────────────────────────
   owasp-dependency-check:
     name: 🛡️ OWASP Dependency Check
@@ -101,7 +104,7 @@ jobs:
           retention-days: 7
 
   # ─────────────────────────────────────────
-  # JOB 5: Build Docker Image
+  # JOB 4: Build Docker Image
   # ─────────────────────────────────────────
   build:
     name: 🐳 Build Docker Image
@@ -132,7 +135,7 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────
-  # JOB 6: Trivy Security Scan
+  # JOB 5: Trivy Security Scan
   # ─────────────────────────────────────────
   trivy-scan:
     name: 🔐 Trivy Security Scan
@@ -177,7 +180,7 @@ jobs:
           retention-days: 7
 
   # ─────────────────────────────────────────
-  # JOB 7: Push to Docker Hub
+  # JOB 6: Push to Docker Hub
   # ─────────────────────────────────────────
   push-to-dockerhub:
     name: 📦 Push to Docker Hub
@@ -208,7 +211,7 @@ jobs:
           echo "✓ Image Pushed to Docker Hub Successfully"
 
   # ─────────────────────────────────────────
-  # JOB 8: Deploy
+  # JOB 7: Deploy
   # ─────────────────────────────────────────
   deploy:
     name: 🚀 Deploy Application
