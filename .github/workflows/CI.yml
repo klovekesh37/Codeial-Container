@@ -1,24 +1,198 @@
-name: CI
+name: Webhook Demo Pipeline - Fail at Steps 2 & 3
 
 on:
+  # ✅ Webhook trigger - triggered via GitHub API
+  repository_dispatch:
+    types: [run-pipeline]
+
+  # Also allow manual trigger for testing
   workflow_dispatch:
-    branches: [ "main" ]
+    inputs:
+      trigger_source:
+        description: 'What triggered this pipeline?'
+        required: false
+        default: 'manual'
 
 jobs:
-  build:
+
+  # ─────────────────────────────────────────
+  # JOB 1: ✅ PASS - Setup & Validate
+  # ─────────────────────────────────────────
+  job-1-setup:
+    name: ✅ Job 1 - Setup & Validate
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Show Trigger Info
+        run: |
+          echo "=========================================="
+          echo "  Pipeline triggered via WEBHOOK"
+          echo "=========================================="
+          echo "Event: ${{ github.event_name }}"
+          echo "Triggered by: ${{ github.event.client_payload.source || inputs.trigger_source || 'webhook' }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Timestamp: $(date)"
 
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x' # Use a specific version of Node.js
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: npm install
+      - name: Validate Environment
+        run: |
+          echo "✅ Node version: $(node --version)"
+          echo "✅ NPM version: $(npm --version)"
+          echo "✅ Docker version: $(docker --version)"
+          echo "✅ OS: $(uname -a)"
 
-    - name: Run tests
-      run: npm test
+      - name: Job 1 Summary
+        run: |
+          echo "✅ Job 1 PASSED - Setup complete"
+          echo "job1_status=passed" >> $GITHUB_ENV
+
+  # ─────────────────────────────────────────
+  # JOB 2: ❌ FAIL - Unit Tests
+  # ─────────────────────────────────────────
+  job-2-unit-tests:
+    name: ❌ Job 2 - Unit Tests (WILL FAIL)
+    runs-on: ubuntu-latest
+    needs: job-1-setup
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          echo "📦 Installing dependencies..."
+          npm install || echo "No package.json found, continuing..."
+
+      - name: Run Unit Tests
+        run: |
+          echo "🧪 Running unit tests..."
+          echo "Testing authentication module..."
+          echo "Testing database module..."
+          echo "Testing API endpoints..."
+          echo ""
+          echo "Test Results:"
+          echo "  ✅ auth.test.js - PASSED (3/3)"
+          echo "  ✅ api.test.js  - PASSED (5/5)"
+          echo "  ❌ db.test.js   - FAILED (1/4)"
+          echo ""
+          echo "FAIL - db.test.js"
+          echo "  ● Database connection test"
+          echo "    Expected: connected"
+          echo "    Received: undefined"
+          echo ""
+          echo "  ● Query timeout test"
+          echo "    Expected: 200ms"
+          echo "    Received: 5000ms"
+          echo ""
+          # ❌ This exit code causes the job to FAIL
+          exit 1
+
+      # This step is skipped because previous step failed
+      - name: Upload Test Results
+        if: always()
+        run: |
+          echo "⚠️ Tests failed - uploading failure report"
+          echo "FAILED" > test-results.txt
+          echo "Timestamp: $(date)" >> test-results.txt
+
+  # ─────────────────────────────────────────
+  # JOB 3: ❌ FAIL - Integration Tests
+  # ─────────────────────────────────────────
+  job-3-integration-tests:
+    name: ❌ Job 3 - Integration Tests (WILL FAIL)
+    runs-on: ubuntu-latest
+    needs: job-1-setup  # Depends on Job 1 only, runs parallel to Job 2
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Start Test Services
+        run: |
+          echo "🚀 Starting test services..."
+          echo "  → Starting mock database..."
+          echo "  → Starting mock API server..."
+          echo "  → Waiting for services to be ready..."
+          sleep 2
+          echo "  ✅ Services started"
+
+      - name: Run Integration Tests
+        run: |
+          echo "🔗 Running integration tests..."
+          echo ""
+          echo "Testing: POST /api/users"
+          echo "Testing: GET  /api/users/:id"
+          echo "Testing: PUT  /api/users/:id"
+          echo "Testing: DELETE /api/users/:id"
+          echo ""
+          echo "Integration Test Results:"
+          echo "  ✅ POST /api/users     - 201 Created"
+          echo "  ✅ GET  /api/users/:id - 200 OK"
+          echo "  ❌ PUT  /api/users/:id - Expected 200, got 500"
+          echo "  ❌ DELETE /api/users   - Expected 204, got 403 Forbidden"
+          echo ""
+          echo "INTEGRATION TEST FAILURE:"
+          echo "  Error: Internal Server Error on PUT request"
+          echo "  Error: Authorization header missing on DELETE"
+          echo "  2 tests failed out of 4"
+          echo ""
+          # ❌ This exit code causes the job to FAIL
+          exit 1
+
+      - name: Cleanup Test Services
+        if: always()
+        run: |
+          echo "🧹 Cleaning up test services..."
+          echo "  → Stopping mock database"
+          echo "  → Stopping mock API server"
+          echo "✅ Cleanup complete"
+
+  # ─────────────────────────────────────────
+  # JOB 4: ⏭️ SKIPPED - Build (depends on failed jobs)
+  # ─────────────────────────────────────────
+  job-4-build:
+    name: ⏭️ Job 4 - Build (Skipped due to failures)
+    runs-on: ubuntu-latest
+    needs: [job-2-unit-tests, job-3-integration-tests]
+    if: success()  # Only runs if ALL previous jobs passed
+    steps:
+      - name: Build Application
+        run: |
+          echo "🐳 Building Docker image..."
+          docker build -t app:latest .
+          echo "✅ Build complete"
+
+  # ─────────────────────────────────────────
+  # JOB 5: 📊 ALWAYS RUNS - Pipeline Summary
+  # ─────────────────────────────────────────
+  pipeline-summary:
+    name: 📊 Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [job-1-setup, job-2-unit-tests, job-3-integration-tests]
+    if: always()  # Always runs regardless of failures
+    steps:
+      - name: Print Pipeline Summary
+        run: |
+          echo "=========================================="
+          echo "          PIPELINE SUMMARY REPORT"
+          echo "=========================================="
+          echo ""
+          echo "Trigger:    Webhook (repository_dispatch)"
+          echo "Run ID:     ${{ github.run_id }}"
+          echo "Branch:     ${{ github.ref_name }}"
+          echo "Commit:     ${{ github.sha }}"
+          echo "Timestamp:  $(date)"
+          echo ""
+          echo "Job Results:"
+          echo "  Job 1 - Setup:              ${{ needs.job-1-setup.result }}"
+          echo "  Job 2 - Unit Tests:         ${{ needs.job-2-unit-tests.result }}"
+          echo "  Job 3 - Integration Tests:  ${{ needs.job-3-integration-tests.result }}"
+          echo "  Job 4 - Build:              SKIPPED (upstream failures)"
+          echo ""
+          echo "=========================================="
+          echo " ✅ Job 1: PASSED"
+          echo " ❌ Job 2: FAILED  ← Unit test failures"
+          echo " ❌ Job 3: FAILED  ← Integration test failures"
+          echo " ⏭️  Job 4: SKIPPED ← Depends on failed jobs"
+          echo "=========================================="
+          echo ""
+          echo "Action Required: Fix failing tests before next run"
