@@ -1,0 +1,92 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:  # Allows manual trigger
+
+env:
+  IMAGE_NAME: node-app-v1
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for SonarQube
+      
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=nodetodo
+            -Dsonar.projectName=nodetodo
+      
+      - name: SonarQube Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true  # Equivalent to abortPipeline: false
+      
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'nodetodo'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --prettyPrint
+      
+      - name: Upload OWASP Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: dependency-check-report.html
+      
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }}:latest .
+          echo "Code Built Successfully"
+      
+      - name: Run Trivy Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:latest
+          format: 'template'
+          template: '@/contrib/html.tpl'
+          output: 'trivy-report.html'
+      
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.html
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Push to Docker Hub
+        run: |
+          docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+      
+      - name: Deploy with Docker Compose
+        run: |
+          docker-compose down
+          docker-compose up -d
+          echo "App Deployed Successfully"
