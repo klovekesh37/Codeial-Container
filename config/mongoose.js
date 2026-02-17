@@ -7,13 +7,14 @@ const MONGO_PORT = '27017';
 const MONGO_DB = 'UserInfo';
 */
 // Environment field for DB connection
-const {
-MONGO_USERNAME,
-MONGO_PASSWORD,
-MONGO_HOSTNAME,
-MONGO_PORT,
-MONGO_DB
-} = process.env;
+const {  
+  MONGO_USERNAME = 'admin',  
+  MONGO_PASSWORD = 'password',  
+  MONGO_HOSTNAME = 'mongodb',  
+  MONGO_PORT = '27017',  
+  MONGO_DB = 'UserInfo'  
+} = process.env;  
+
 
 //Options for mongodb connection
 const options = {
